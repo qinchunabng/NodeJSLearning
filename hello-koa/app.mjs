@@ -1,5 +1,7 @@
 //导入Koa，注意导入的是大写开头的class:
+import { bodyParser } from '@koa/bodyparser';
 import Koa from 'koa';
+import controller from './controller.mjs';
 
 //创建一个koa实例表示webapp本身：
 const app = new Koa();
@@ -9,6 +11,9 @@ app.use(async (ctx, next) => {
     console.log(`${ctx.request.method} ${ctx.request.url}`);//打印URL
     await next();//调用下一个middleware
 });
+
+//解析request.body
+app.use(bodyParser());
 
 app.use(async (ctx, next) => {
     const start = Date.now();
@@ -21,12 +26,15 @@ app.use(async (ctx, next) => {
 
 
 //对于任何请求，app将调用该异步函数处理：
-app.use(async (ctx, next) => {
-    await next();
-    //设置响应类型和文本:
-    ctx.response.type = 'text/html';
-    ctx.response.body = '<h1>Hello koa!</h1>';
-});
+// app.use(async (ctx, next) => {
+//     await next();
+//     //设置响应类型和文本:
+//     ctx.response.type = 'text/html';
+//     ctx.response.body = '<h1>Hello koa!</h1>';
+// });
+
+//使用controller()
+app.use(await controller());
 
 //在端口3000监听
 app.listen(3000);
