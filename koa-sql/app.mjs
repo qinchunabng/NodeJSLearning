@@ -4,7 +4,6 @@ import mount from 'koa-mount';
 import serve from 'koa-static';
 
 import controler from './controller.mjs';
-import { createDatabase } from './db.mjs';
 import templateEngine from './view.mjs';
 
 const isProduction = process.env.NODE_ENV === 'production';

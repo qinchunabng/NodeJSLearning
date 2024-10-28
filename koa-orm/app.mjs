@@ -4,6 +4,7 @@ import mount from 'koa-mount';
 import serve from 'koa-static';
 
 import controler from './controller.mjs';
+import { sequelize, User } from './orm.mjs';
 import templateEngine from './view.mjs';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -15,6 +16,29 @@ app.context.render = function (view, model) {
     this.response.type = 'text/html; charset=utf-8';
     this.response.body = templateEngine.render(view, Object.assign({}, this.state || {}, model || {}));
 }
+
+async function initDb() {
+    // only for development
+    await sequelize.sync();
+    const email = 'admin@example.com';
+    let user = await User.findOne({
+        where: {
+            email: email
+        }
+    });
+    if (user === null) {
+        await User.create({
+            email: email,
+            name: 'Bob',
+            password: '123456'
+        })
+    }
+}
+
+await initDb();
+
+//绑定db到app.context
+app.context.db = await initDb();
 
 //log and benchmark
 app.use(async (ctx, next) => {
